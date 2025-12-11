@@ -1,107 +1,216 @@
-# 项目开源规划文档
+# Smart Agriculture System
 
-## 1. 项目概述
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![AI](https://img.shields.io/badge/AI-LLM%20集成-green.svg)](#ai决策编排)
 
-本项目是一个集成AI决策、权限管理、数据加密和数据库系统的智能云平台，主要用于农业、生态等领域的数据分析与决策支持。系统采用模块化设计，支持多专家并行推理、细粒度权限控制、安全的数据传输和模型控制程序(MCP)架构，实现了大模型与本地控制程序的无缝集成。
+一个集成AI决策、权限管理、数据加密和数据库系统的智能云平台，专为农业、生态等领域的数据分析与决策支持而设计。
 
-**后期计划**：将实现本地模型部署能力，训练多款针对农业场景的小模型，包括但不限于作物生长预测模型、病虫害识别模型、土壤分析模型等，以降低对外部API的依赖并提高系统响应速度。
+## 📋 项目概述
 
-## 2. 核心功能
+Smart Agriculture System 是一个模块化的智能农业决策支持平台，通过AI编排器实现多专家并行推理，结合细粒度权限控制和安全的数据传输，为现代农业提供智能化的数据分析与决策支持。
 
-### 2.1 AI决策编排
-- 基于多专家Agent的并行推理与仲裁
-- 动态专家选择与任务分发
-- 工单生命周期管理
-- 决策日志记录与追踪
+**核心特色：**
+- 🤖 **智能AI决策** - 多专家Agent并行推理与仲裁
+- 🔒 **权限管理** - 基于RBAC的细粒度权限控制
+- 🛡️ **安全加密** - 双层数据加密机制，分层密钥管理
+- 📊 **数据库系统** - SQLite轻量级数据库，权限分离设计
+- 🔧 **MCP架构** - 模型控制程序，实现大模型与本地程序无缝集成
 
-#### AI推理模式实现
-系统支持多种推理模式，具体实现位于`cloud_backend/functions/src/ai/llm.py`：
+## ✨ 主要功能
 
-1. **ReAct推理引擎** (`ReactAgent`类)
-   - 实现原理：通过"思考-行动-观察"循环进行推理
-   - 关键特性：支持多步骤推理，每步可调用工具并根据结果调整策略
-   - 应用场景：复杂问题解决，需要顺序决策的场景
-   - 核心方法：`execute()`实现推理循环，`_build_react_prompt()`构建动态提示词，`_extract_tool_calls()`提取工具调用
+### 🔥 核心功能
+- **AI决策编排**
+  - 基于多专家Agent的并行推理与仲裁
+  - 动态专家选择与任务分发
+  - 工单生命周期管理
+  - 决策日志记录与追踪
 
-2. **Function Schema推理引擎** (`FunctionSchemaAgent`类)
-   - 实现原理：基于函数调用的结构化输出推理
-   - 关键特性：直接生成工具调用请求，支持多工具并行调用
-   - 应用场景：明确需要工具辅助的场景，结构化数据处理
-   - 核心方法：`_build_messages()`构建消息列表，`_execute_tools()`执行工具链，`_process_tool_results()`处理工具结果
+- **权限管理系统**
+  - 基于角色的访问控制(RBAC)
+  - 细粒度权限划分(读/写/管理)
+  - 多级别资源保护
+  - 表级权限分离设计
 
-3. **动态模式选择**
-   - 通过`agent_mode`参数控制（'react'或'function'）
-   - 默认使用Function Schema模式，复杂场景可切换为ReAct模式
-   - 工作流中通过`task_package`的`agent_mode`字段指定
+- **加密与安全**
+  - 双层数据加密机制(对称加密+SigV4)
+  - 分层密钥管理(Master Key、DEK、KEK)
+  - JWT令牌管理与验证
+  - CA证书管理与用户认证
 
-### 2.2 权限管理系统
-- 基于角色的访问控制(RBAC)
-- 细粒度权限划分(读/写/管理)
-- 多级别资源保护
-- 用户角色与权限动态分配
-- 表级权限分离设计
+- **数据库系统**
+  - SQLite轻量级数据库
+  - 高效的查询执行引擎
+  - 数据完整性与一致性保障
 
-### 2.3 加密与安全
-- 双层数据加密机制(对称加密+SigV4)
-- 分层密钥管理(Master Key、DEK、KEK)
-- 安全的数据传输通道
-- 数据库访问权限控制
-- JWT令牌管理与验证
-- CA证书管理与用户认证
+- **MCP(模型控制程序)**
+  - 工具注册与管理
+  - 工具执行与参数验证
+  - 权限沙箱控制
+  - 提示词生成与优化
 
-### 2.4 数据库系统
-- SQLite轻量级数据库
-- 多表设计与权限分离
-- 高效的查询执行引擎
-- 数据完整性与一致性保障
+### 🤖 AI推理模式
+系统支持两种AI推理模式：
 
-### 2.5 模型控制程序(MCP)
-- 工具注册与管理
-- 工具执行与参数验证
-- 权限沙箱控制
-- 提示词生成与优化
-- 大模型与本地程序通信桥接
+1. **ReAct推理引擎**
+   - 通过"思考-行动-观察"循环进行推理
+   - 支持多步骤推理和策略调整
+   - 适合复杂问题解决场景
 
-## 3. 技术栈
+2. **Function Schema推理引擎**
+   - 基于函数调用的结构化输出推理
+   - 直接生成工具调用请求
+   - 支持多工具并行调用
 
+## 🚀 快速开始
+
+### 环境要求
+
+- Python 3.11 或更高版本
+- pip 包管理器
+
+### 安装步骤
+
+1. **克隆项目**
+   ```bash
+   git clone https://github.com/your-org/smart-agriculture-system.git
+   cd smart-agriculture-system
+   ```
+
+2. **创建虚拟环境**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Linux/Mac
+   # 或 venv\Scripts\activate  # Windows
+   ```
+
+3. **安装依赖**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **配置环境变量**
+   ```bash
+   cp .env.example .env
+   # 编辑 .env 文件，填入必要的配置信息
+   ```
+
+5. **初始化数据库**
+   ```bash
+   python scripts/init_db.py
+   ```
+
+6. **运行应用**
+   ```bash
+   python main.py
+   ```
+
+### Docker部署
+
+```bash
+# 构建镜像
+docker build -t smart-agriculture-system .
+
+# 运行容器
+docker run -p 8000:8000 smart-agriculture-system
+```
+
+## 📁 项目结构
+
+```
+smart-agriculture-system/
+├── README.md                 # 项目说明文档
+├── requirements.txt          # Python依赖列表
+├── main.py                   # 应用入口文件
+├── dockerfile               # Docker配置文件
+├── .env.example             # 环境变量示例
+│
+├── src/                     # 源代码目录
+│   ├── __init__.py
+│   ├── core/                # 核心功能模块
+│   │   ├── __init__.py
+│   │   ├── ai/              # AI决策编排
+│   │   │   ├── __init__.py
+│   │   │   ├── llm.py       # LLM集成与推理引擎
+│   │   │   └── agents/      # 专家Agent实现
+│   │   ├── auth/            # 权限管理
+│   │   │   ├── __init__.py
+│   │   │   ├── rbac.py      # RBAC权限控制
+│   │   │   └── jwt.py       # JWT认证
+│   │   ├── crypto/          # 加密模块
+│   │   │   ├── __init__.py
+│   │   │   ├── encryption.py # 双层加密机制
+│   │   │   └── key_manager.py # 分层密钥管理
+│   │   ├── database/        # 数据库模块
+│   │   │   ├── __init__.py
+│   │   │   ├── manager.py   # 数据库管理器
+│   │   │   └── models/      # 数据模型
+│   │   └── mcp/             # 模型控制程序
+│   │       ├── __init__.py
+│   │       ├── tool_registry.py # 工具注册
+│   │       └── executor.py     # 工具执行器
+│   │
+├── scripts/                 # 脚本文件
+│   ├── init_db.py          # 数据库初始化
+│   ├── setup.py            # 项目设置
+│   └── demo.py             # 示例演示
+│
+├── tests/                   # 测试文件
+│   ├── __init__.py
+│   ├── test_ai/            # AI模块测试
+│   ├── test_auth/          # 认证模块测试
+│   ├── test_crypto/        # 加密模块测试
+│   └── test_database/      # 数据库模块测试
+│
+├── docs/                    # 文档目录
+│   ├── api/                # API文档
+│   ├── deployment/         # 部署文档
+│   └── architecture/       # 架构文档
+│
+└── data/                    # 数据目录
+    ├── database/           # SQLite数据库文件
+    ├── logs/               # 日志文件
+    └── exports/            # 数据导出
+```
+
+## 🛠️ 技术栈
+
+### 核心依赖
 - **核心语言**: Python 3.11+
 - **数据库**: SQLite
 - **异步框架**: asyncio
 - **加密库**: cryptography, boto3
 - **LLM集成**: DeepSeek API
 - **权限框架**: 自定义RBAC实现
-- **依赖管理**: pip
-- **Web框架**: Flask/FastAPI (可选)
 - **认证**: JWT, SigV4
-- **机器学习框架**: TensorFlow/PyTorch (计划引入)
+- **Web框架**: Flask/FastAPI (可选)
 
-## 4. 系统架构
-
+### 系统架构
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      应用层 (Application Layer)                  │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
-│  │  Web UI/API │  │  移动端接口  │  │  边缘设备通信接口         │  │
-│  └──────┬──────┘  └──────┬──────┘  └──────────┬────────────────┘  │
+┌─────────────────────────────────────────────────────────────┐
+│                    应用层 (Application Layer)                │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
+│  │  Web UI/API │  │  移动端接口  │  │  边缘设备通信接口         │ │
+│  └──────┬──────┘  └──────┬──────┘  └──────────┬────────────────┘ │
 └─────────┼────────────────┼────────────────────┼────────────────────┘
           │                │                    │
 ┌─────────▼────────────────▼────────────────────▼────────────────────┐
-│                      业务逻辑层 (Service Layer)                  │
+│                    业务逻辑层 (Service Layer)                    │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
 │  │  AI编排器   │  │  权限管理器  │  │  工单服务                │  │
 │  └──────┬──────┘  └──────┬──────┘  └──────────┬────────────────┘  │
 └─────────┼────────────────┼────────────────────┼────────────────────┘
           │                │                    │
 ┌─────────▼────────────────▼────────────────────▼────────────────────┐
-│                      数据访问层 (Data Access Layer)               │
+│                    数据访问层 (Data Access Layer)                 │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
 │  │  LLM客户端  │  │  MCP中间层   │  │  数据库管理器            │  │
-│  │  (带加密)   │  │  (工具注册/执行)│  │  (权限分离)            │  │
+│  │  (带加密)   │  │(工具注册/执行)│  │  (权限分离)            │  │
 │  └──────┬──────┘  └──────┬──────┘  └──────────┬────────────────┘  │
 └─────────┼────────────────┼────────────────────┼────────────────────┘
           │                │                    │
 ┌─────────▼────────────────▼────────────────────▼────────────────────┐
-│                      基础设施层 (Infrastructure Layer)            │
+│                 基础设施层 (Infrastructure Layer)                 │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
 │  │  LLM服务    │  │  加密模块    │  │  SQLite数据库           │  │
 │  │ (DeepSeek)  │  │ (分层密钥)   │  │ (多表权限分离)          │  │
@@ -110,88 +219,112 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## 5. 开源计划
+## 🔧 开发指南
 
-### 5.1 核心目标
-- **基础框架**: 发布项目基础架构，实现AI编排器、权限管理和MCP核心组件
-- **完整功能**: 完善数据库系统、LLM集成加密和安全系统重构
-- **社区生态**: 收集反馈、优化性能、支持多模型集成和本地模型部署
-- **农业应用**: 开发农业专用小模型，包括作物生长预测、病虫害识别等
+### 本地开发环境搭建
 
-## 6. 技术学习路线
-
-为了更好地理解和参与本项目，建议按以下路线学习相关技术:
-
-1. **Python基础**
-   - 核心语法和数据结构
-   - 面向对象编程
-   - 异步编程(asyncio)
-
-2. **数据库技术**
-   - SQLite基础操作
-   - SQL查询优化
-   - 数据库设计原则
-   - 权限管理
-
-3. **安全与加密**
-   - 密码学基础
-   - 常见加密算法(AES, RSA, HMAC等)
-   - 安全编程实践
-   - 密钥管理系统设计
-   - 双向信任机制实现
-   - JWT和身份认证
-
-4. **AI与LLM集成**
-   - 大语言模型基础
-   - API调用与集成
-   - 提示工程
-   - 工具调用机制
-   - 推理引擎设计
-   - 小模型训练与部署
-
-5. **系统架构**
-   - 微服务设计
-   - 模块化开发
-   - 接口设计原则
-   - 中间件设计
-
-## 7. 个人技术成长与项目开发
-
-本项目开发过程中，通过AI辅助开发，倒逼团队不断学习和掌握新技术：
-
-- **加密技术**: 深入学习加密算法原理，实现分层密钥管理系统
-- **双向信任机制**: 研究并实现系统组件间的双向认证与信任建立
-- **AI推理引擎**: 探索不同推理模式的实现与优化
-- **权限系统**: 设计并实现细粒度的权限控制机制
-
-这种学习与实践相结合的方式，不仅提升了个人技术能力，也确保了项目的技术深度和安全性。
-
-## 8. 贡献指南
-
-我们欢迎所有形式的贡献，包括代码提交、文档改进、问题反馈等。贡献前请阅读以下指南:
-
-1. **代码贡献流程**
-   - Fork本仓库
-   - 创建特性分支
-   - 提交代码变更
-   - 创建Pull Request
-   - 代码审查与合并
+1. **设置开发环境**
+   ```bash
+   # 安装开发依赖
+   pip install -r requirements-dev.txt
+   
+   # 安装预提交钩子
+   pre-commit install
+   
+   # 运行测试
+   pytest tests/
+   ```
 
 2. **代码规范**
-   - 遵循PEP 8风格指南
-   - 添加适当的文档和注释
-   - 编写单元测试
-   - 确保代码可维护性
+   - 遵循 [PEP 8](https://pep8.org/) 风格指南
+   - 使用 [Black](https://black.readthedocs.io/) 代码格式化
+   - 使用 [mypy](https://mypy.readthedocs.io/) 类型检查
+   - 添加适当的文档字符串
 
-3. **问题反馈**
-   - 使用GitHub Issues提交问题
-   - 提供详细的错误信息和复现步骤
-   - 标签分类(BUG/FEATURE/DOCUMENTATION)
+3. **提交规范**
+   ```bash
+   # 功能提交
+   git commit -m "feat: 添加新的AI推理模式"
+   
+   # 修复提交
+   git commit -m "fix: 修复权限验证漏洞"
+   
+   # 文档提交
+   git commit -m "docs: 更新API文档"
+   ```
 
-## 9. 联系方式
+### API使用示例
 
-- 邮箱: [gengxberww@petalmail.com]
+```python
+from src.core.ai import LLMManager
+from src.core.auth import RBACManager
+
+# 初始化AI管理器
+llm_manager = LLMManager()
+
+# 创建AI任务
+task = {
+    "type": "crop_prediction",
+    "data": {
+        "soil_type": "clay",
+        "temperature": 25,
+        "humidity": 60
+    },
+    "agent_mode": "react"  # 或 "function"
+}
+
+# 执行AI决策
+result = llm_manager.execute_task(task)
+print(result)
+```
+
+## 📖 使用文档
+
+- [API文档](docs/api/README.md)
+- [部署指南](docs/deployment/README.md)
+- [架构设计](docs/architecture/README.md)
+- [安全指南](docs/security/README.md)
+
+## 🤝 贡献指南
+
+我们欢迎所有形式的贡献！请阅读 [贡献指南](CONTRIBUTING.md) 了解详情。
+
+### 贡献流程
+
+1. **Fork** 本仓库
+2. **创建** 特性分支 (`git checkout -b feature/AmazingFeature`)
+3. **提交** 更改 (`git commit -m 'Add some AmazingFeature'`)
+4. **推送** 到分支 (`git push origin feature/AmazingFeature`)
+5. 创建 **Pull Request**
+
+### 问题反馈
+
+- 使用 [GitHub Issues](https://github.com/your-org/smart-agriculture-system/issues) 提交问题
+- 提供详细的错误信息和复现步骤
+- 标签分类: BUG / FEATURE / DOCUMENTATION
+
+## 📝 更新日志
+
+### [1.0.0] - 2024-12-11
+- 🎉 初始版本发布
+- ✨ 实现AI决策编排功能
+- 🔒 添加权限管理系统
+- 🛡️ 实现双层加密机制
+- 📊 集成SQLite数据库系统
+
+## 📄 许可证
+
+本项目采用 [MIT 许可证](LICENSE)。
+
+## 📞 联系方式
+
+- 项目维护者: [Your Name](mailto:gengxberww@petalmail.com)
+- 项目主页: [https://github.com/your-org/smart-agriculture-system](https://github.com/your-org/smart-agriculture-system)
+
+## 🙏 致谢
+
+感谢所有为本项目做出贡献的开发者和研究人员！
 
 ---
 
-更新日期: 2025-08-10 15:30:22
+**让现代农业更智能，让决策更科学！** 🌱🤖
